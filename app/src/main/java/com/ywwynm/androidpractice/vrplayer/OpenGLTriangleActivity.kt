@@ -9,21 +9,21 @@ import com.ywwynm.androidpractice.R
 import com.ywwynm.androidpractice.vrplayer.utils.compileShader
 import com.ywwynm.androidpractice.vrplayer.utils.createProgram
 import com.ywwynm.androidpractice.vrplayer.utils.readRawTextFile
-import kotlinx.android.synthetic.main.activity_vrplayer.*
+import kotlinx.android.synthetic.main.activity_triangle_opengl.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
-class VRPlayerActivity : AppCompatActivity() {
+class OpenGLTriangleActivity : AppCompatActivity() {
 
-  val TAG = "VRPlayerActivity"
+  val TAG = "OpenGLTriangleActivity"
 
   private lateinit var mRenderer: MyGLRenderer
 
-  private val vertexShaderSrc = readRawTextFile(R.raw.vertex_shader)
-  private val fragShaderSrc = readRawTextFile(R.raw.fragment_shader)
+  private val vertexShaderSrc = readRawTextFile(R.raw.triangle_vertex_shader)
+  private val fragShaderSrc = readRawTextFile(R.raw.triangle_fragment_shader)
 
   private var aPosHandle = -1
   private var programId = -1
@@ -37,7 +37,7 @@ class VRPlayerActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_vrplayer)
+    setContentView(R.layout.activity_triangle_opengl)
 
     gsv.setEGLContextClientVersion(3)
 
