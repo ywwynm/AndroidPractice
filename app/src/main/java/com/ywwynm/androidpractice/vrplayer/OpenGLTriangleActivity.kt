@@ -6,9 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.ywwynm.androidpractice.R
-import com.ywwynm.androidpractice.vrplayer.utils.compileShader
-import com.ywwynm.androidpractice.vrplayer.utils.createProgram
-import com.ywwynm.androidpractice.vrplayer.utils.readRawTextFile
+import com.ywwynm.androidpractice.vrplayer.utils.ShaderUtils
 import kotlinx.android.synthetic.main.activity_triangle_opengl.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -22,8 +20,8 @@ class OpenGLTriangleActivity : AppCompatActivity() {
 
   private lateinit var mRenderer: MyGLRenderer
 
-  private val vertexShaderSrc = readRawTextFile(R.raw.triangle_vertex_shader)
-  private val fragShaderSrc = readRawTextFile(R.raw.triangle_fragment_shader)
+  private val vertexShaderSrc = ShaderUtils.readRawTextFile(R.raw.triangle_vertex_shader)
+  private val fragShaderSrc = ShaderUtils.readRawTextFile(R.raw.triangle_fragment_shader)
 
   private var aPosHandle = -1
   private var programId = -1
@@ -63,9 +61,9 @@ class OpenGLTriangleActivity : AppCompatActivity() {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
       GLES31.glClearColor(0.0f, 0.0f, 0.0f, 1.0f)
 
-      val vertexShader = compileShader(GLES31.GL_VERTEX_SHADER, vertexShaderSrc)
-      val fragmentShader = compileShader(GLES31.GL_FRAGMENT_SHADER, fragShaderSrc)
-      programId = createProgram(intArrayOf(vertexShader, fragmentShader))
+      val vertexShader = ShaderUtils.compileShader(GLES31.GL_VERTEX_SHADER, vertexShaderSrc)
+      val fragmentShader = ShaderUtils.compileShader(GLES31.GL_FRAGMENT_SHADER, fragShaderSrc)
+      programId = ShaderUtils.createProgram(intArrayOf(vertexShader, fragmentShader))
       Log.i(TAG, "vertexShader: $vertexShader, fragmentShader: $fragmentShader, programId: $programId")
 
       aPosHandle = GLES31.glGetAttribLocation(programId, "aPosition")
