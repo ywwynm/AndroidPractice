@@ -11,7 +11,7 @@ import android.util.Log
 import android.view.Surface
 import com.ywwynm.androidpractice.R
 import com.ywwynm.androidpractice.vrplayer.utils.ShaderUtils
-import kotlinx.android.synthetic.main.activity_triangle_opengl.*
+import kotlinx.android.synthetic.main.activity_video_opengl.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -71,6 +71,9 @@ class OpenGLVideoActivity : AppCompatActivity() {
   private lateinit var mediaPlayer: MediaPlayer
   private var updateSurface = false
 
+  private var stMatrix = FloatArray(16)
+  private var uSTMatrixHandle = 0
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_video_opengl)
@@ -94,6 +97,14 @@ class OpenGLVideoActivity : AppCompatActivity() {
     }
 
     override fun onDrawFrame(gl: GL10?) {
+      synchronized(this) {
+        if (updateSurface) {
+          surfaceTexture.updateTexImage()
+          surfaceTexture.getTransformMatrix(stMatrix)
+          updateSurface = false
+        }
+      }
+
       GLES31.glClear(GLES31.GL_DEPTH_BUFFER_BIT or GLES31.GL_COLOR_BUFFER_BIT)
       GLES31.glUseProgram(programId)
       GLES31.glUniformMatrix4fv(uMatHandle, 1, false, projectionMatrix, 0);
@@ -164,6 +175,9 @@ class OpenGLVideoActivity : AppCompatActivity() {
 //      val bitmap = BitmapFactory.decodeFile(
 //          Environment.getExternalStorageDirectory().absolutePath + "/blue.jpg")
 //      textureId = TextureUtils.loadTexture(bitmap)
+
+      uSTMatrixHandle = GLES31.glGetUniformLocation(programId, "uSTMatrix")
+      GLES31.glUniformMatrix4fv(uSTMatrixHandle, 1, false, stMatrix, 0)
 
       val textures = IntArray(1)
       GLES20.glGenTextures(1, textures, 0)
