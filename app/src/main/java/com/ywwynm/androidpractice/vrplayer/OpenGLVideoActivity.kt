@@ -2,9 +2,11 @@ package com.ywwynm.androidpractice.vrplayer
 
 import android.Manifest
 import android.graphics.SurfaceTexture
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.opengl.*
 import android.os.Bundle
+import android.os.Environment
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -15,11 +17,8 @@ import kotlinx.android.synthetic.main.activity_video_opengl.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import java.nio.ShortBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-
-
 
 class OpenGLVideoActivity : AppCompatActivity() {
 
@@ -37,28 +36,18 @@ class OpenGLVideoActivity : AppCompatActivity() {
   private var aPosHandle = -1
 
   private var vertexData = floatArrayOf(
-      0.0f,  0.0f, 0.0f,
       1.0f,  1.0f, 0.0f,
       -1.0f,  1.0f, 0.0f,
-      -1.0f, -1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f
+      1.0f, -1.0f, 0.0f,
+      -1.0f, -1.0f, 0.0f
   )
   private lateinit var vertexBuffer: FloatBuffer
 
-  private var vertexIndexData = shortArrayOf(
-      0, 1, 2,
-      0, 2, 3,
-      0, 3, 4,
-      0, 4, 1
-  )
-  private lateinit var vertexIndexBuffer: ShortBuffer
-
   private var textureVertexData = floatArrayOf(
-      0.5f, 0.5f,
       1.0f, 0.0f,
       0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f
+      1.0f, 1.0f,
+      0.0f, 1.0f
   )
   private lateinit var textureVertexBuffer: FloatBuffer
 
@@ -82,6 +71,12 @@ class OpenGLVideoActivity : AppCompatActivity() {
         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 0)
 
     mediaPlayer = MediaPlayer()
+    val path = Environment.getExternalStorageDirectory().absolutePath + "/vr_video/VR_1.mp4"
+    Log.i(TAG, "video path: $path")
+    mediaPlayer.setDataSource(path)
+    mediaPlayer.setAudioAttributes(
+        AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+    mediaPlayer.isLooping = true
 
     gsv.setEGLContextClientVersion(3)
 
@@ -92,39 +87,54 @@ class OpenGLVideoActivity : AppCompatActivity() {
 
   inner class MyGLRenderer: GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener {
 
+    private var screenWidth = 0
+    private var screenHeight = 0
+
     override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
       updateSurface = true
     }
 
     override fun onDrawFrame(gl: GL10?) {
+      Log.i(TAG, "onDrawFrame")
+      GLES31.glClear(GLES31.GL_DEPTH_BUFFER_BIT or GLES31.GL_COLOR_BUFFER_BIT)
+
       synchronized(this) {
         if (updateSurface) {
+          Log.i(TAG, "updateSurface")
           surfaceTexture.updateTexImage()
           surfaceTexture.getTransformMatrix(stMatrix)
           updateSurface = false
         }
       }
 
-      GLES31.glClear(GLES31.GL_DEPTH_BUFFER_BIT or GLES31.GL_COLOR_BUFFER_BIT)
+      Log.i(TAG, "really drawing")
       GLES31.glUseProgram(programId)
       GLES31.glUniformMatrix4fv(uMatHandle, 1, false, projectionMatrix, 0);
+      GLES31.glUniformMatrix4fv(uSTMatrixHandle, 1, false, stMatrix, 0)
+
+      vertexBuffer.position(0)
       GLES31.glEnableVertexAttribArray(aPosHandle)
       GLES31.glVertexAttribPointer(aPosHandle, 3, GLES31.GL_FLOAT, false,
           12, vertexBuffer);
 
+      textureVertexBuffer.position(0)
       GLES31.glEnableVertexAttribArray(aTextureCoordHandle)
       GLES31.glVertexAttribPointer(aTextureCoordHandle, 2, GLES31.GL_FLOAT, false,
           8, textureVertexBuffer)
+
       GLES31.glActiveTexture(GLES31.GL_TEXTURE0)
-      GLES31.glBindTexture(GLES31.GL_TEXTURE_2D, textureId)
+      GLES31.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
 
       GLES31.glUniform1i(uTextureSamplerHandle, 0)
+      GLES31.glViewport(0, 0, screenWidth, screenHeight)
+      GLES31.glDrawArrays(GLES31.GL_TRIANGLE_STRIP, 0, 4)
 
 //      GLES31.glDrawArrays(GLES31.GL_TRIANGLES, 0, 3);
-      GLES31.glDrawElements(GLES31.GL_TRIANGLES, vertexIndexData.size, GLES31.GL_UNSIGNED_SHORT, vertexIndexBuffer)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+      screenWidth = width
+      screenHeight = height
       val ratio = if (width > height) {
         width / height.toFloat()
       } else {
@@ -148,6 +158,9 @@ class OpenGLVideoActivity : AppCompatActivity() {
 
       uMatHandle = GLES31.glGetUniformLocation(programId, "uMatrix")
       aPosHandle = GLES31.glGetAttribLocation(programId, "aPosition")
+      uTextureSamplerHandle = GLES31.glGetUniformLocation(programId, "uTexture")
+      aTextureCoordHandle = GLES31.glGetAttribLocation(programId, "aTexCoord")
+      uSTMatrixHandle = GLES31.glGetUniformLocation(programId, "uSTMatrix")
 
       vertexBuffer = ByteBuffer.allocateDirect(vertexData.size * 4)
           .order(ByteOrder.nativeOrder())
@@ -155,20 +168,12 @@ class OpenGLVideoActivity : AppCompatActivity() {
           .put(vertexData)
       vertexBuffer.position(0)
 
-      vertexIndexBuffer = ByteBuffer.allocateDirect(vertexIndexData.size * 2)
-          .order(ByteOrder.nativeOrder())
-          .asShortBuffer()
-          .put(vertexIndexData)
-      vertexIndexBuffer.position(0)
-
       textureVertexBuffer = ByteBuffer.allocateDirect(textureVertexData.size * 4)
           .order(ByteOrder.nativeOrder())
           .asFloatBuffer()
           .put(textureVertexData)
       textureVertexBuffer.position(0)
 
-      uTextureSamplerHandle = GLES31.glGetUniformLocation(programId, "uTexture")
-      aTextureCoordHandle = GLES31.glGetAttribLocation(programId, "aTexCoord")
 
 //      val bitmapOptions = BitmapFactory.Options()
 //      bitmapOptions.inScaled = false
@@ -176,14 +181,12 @@ class OpenGLVideoActivity : AppCompatActivity() {
 //          Environment.getExternalStorageDirectory().absolutePath + "/blue.jpg")
 //      textureId = TextureUtils.loadTexture(bitmap)
 
-      uSTMatrixHandle = GLES31.glGetUniformLocation(programId, "uSTMatrix")
-      GLES31.glUniformMatrix4fv(uSTMatrixHandle, 1, false, stMatrix, 0)
-
       val textures = IntArray(1)
       GLES20.glGenTextures(1, textures, 0)
 
       textureId = textures[0]
       GLES31.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId)
+      Log.i(TAG, "textureId bound: $textureId")
 
       GLES31.glTexParameterf(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES31.GL_TEXTURE_MIN_FILTER,
           GLES31.GL_NEAREST.toFloat())
@@ -195,6 +198,10 @@ class OpenGLVideoActivity : AppCompatActivity() {
       val surface = Surface(surfaceTexture)
       mediaPlayer.setSurface(surface)
       surface.release()
+
+      Log.i(TAG, "Prepared to start playing")
+      mediaPlayer.prepare()
+      mediaPlayer.start()
     }
 
   }
