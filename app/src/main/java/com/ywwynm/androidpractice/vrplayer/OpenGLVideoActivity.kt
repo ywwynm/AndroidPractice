@@ -1,6 +1,7 @@
 package com.ywwynm.androidpractice.vrplayer
 
 import android.Manifest
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -17,10 +18,16 @@ import com.ywwynm.androidpractice.R
 import com.ywwynm.androidpractice.vrplayer.texture.OESTexture2D
 import com.ywwynm.androidpractice.vrplayer.texture.Texture2D
 import com.ywwynm.androidpractice.vrplayer.utils.TextureTransfer
+import com.ywwynm.androidpractice.vrplayer.utils.glCheckError
 import kotlinx.android.synthetic.main.activity_video_opengl.*
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.IntBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+
+
 
 class OpenGLVideoActivity : AppCompatActivity() {
 
@@ -268,6 +275,8 @@ class OpenGLVideoActivity : AppCompatActivity() {
     private lateinit var oesTexture2D: OESTexture2D
     private lateinit var texture2D: Texture2D
 
+    private var pixelsBuffer: IntBuffer? = null
+
     init {
       Log.i(TAG, "video path: $videoPath")
       mediaPlayer.setDataSource(videoPath)
@@ -344,6 +353,10 @@ class OpenGLVideoActivity : AppCompatActivity() {
       texture2D.textureId = textureTransfer.tempTexture2DId
       screenWidth = width
       screenHeight = height
+      pixelsBuffer = ByteBuffer.allocateDirect(width * height * 4)
+          .order(ByteOrder.nativeOrder())
+          .asIntBuffer()
+
       val ratio = if (width > height) {
         width / height.toFloat()
       } else {
@@ -374,6 +387,12 @@ class OpenGLVideoActivity : AppCompatActivity() {
       textureTransfer.fboStart()
       Log.i(TAG, "oesTexture2D.draw")
       oesTexture2D.draw(screenWidth, screenHeight)
+      GLES31.glReadPixels(0, 0, screenWidth, screenHeight,
+          GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE, pixelsBuffer!!.clear())
+      val bitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888)
+      bitmap.copyPixelsFromBuffer(pixelsBuffer)
+      Log.i(TAG, "bitmap center: ${bitmap.getPixel(540, 960)}")
+      glCheckError(TAG, "glReadPixels")
       textureTransfer.fboEnd()
 
       Log.i(TAG, "texture2D.draw")
