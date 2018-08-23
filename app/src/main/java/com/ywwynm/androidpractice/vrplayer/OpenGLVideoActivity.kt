@@ -2,6 +2,7 @@ package com.ywwynm.androidpractice.vrplayer
 
 import android.Manifest
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -15,9 +16,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Surface
 import com.ywwynm.androidpractice.R
-import com.ywwynm.androidpractice.vrplayer.texture.OESTexture2D
-import com.ywwynm.androidpractice.vrplayer.texture.Texture2D
-import com.ywwynm.androidpractice.vrplayer.utils.TextureTransfer
+import com.ywwynm.androidpractice.vrplayer.testforunity.Texture2D
+import com.ywwynm.androidpractice.vrplayer.testforunity.Texture2DExt
+import com.ywwynm.androidpractice.vrplayer.testforunity.TextureTransfer
 import com.ywwynm.androidpractice.vrplayer.utils.glCheckError
 import kotlinx.android.synthetic.main.activity_video_opengl.*
 import java.io.IOException
@@ -272,8 +273,15 @@ class OpenGLVideoActivity : AppCompatActivity() {
     private var screenWidth = 0
     private var screenHeight = 0
 
-    private lateinit var oesTexture2D: OESTexture2D
-    private lateinit var texture2D: Texture2D
+//    private lateinit var oesTexture2D: OESTexture2D
+//    private lateinit var texture2D: com.ywwynm.androidpractice.vrplayer.texture.Texture2D
+//
+//    private val textureTransfer = com.ywwynm.androidpractice.vrplayer.utils.TextureTransfer(TAG) // test transferring OES texture to normal 2D texture
+
+    private lateinit var texture2DExt: Texture2DExt
+    private lateinit var texture2Dj: Texture2D
+
+    private var textureTransferJ = TextureTransfer()
 
     private var pixelsBuffer: IntBuffer? = null
 
@@ -310,24 +318,32 @@ class OpenGLVideoActivity : AppCompatActivity() {
       updateSurface = true
     }
 
-    private val textureTransfer = TextureTransfer(TAG) // test transferring OES texture to normal 2D texture
-
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
       GLES31.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
 
-      oesTexture2D = OESTexture2D()
-      texture2D = Texture2D()
+      texture2Dj = Texture2D()
+      texture2DExt = Texture2DExt()
 
-      texture2D.init()
-      oesTexture2D.init()
+      texture2Dj.init()
+      texture2DExt.init()
 
-      surfaceTexture = SurfaceTexture(oesTexture2D.textureId)
+      surfaceTexture = SurfaceTexture(texture2DExt.textureID)
+
+//      oesTexture2D = OESTexture2D()
+//      texture2D = com.ywwynm.androidpractice.vrplayer.texture.Texture2D()
+//
+//      texture2D.init()
+//      oesTexture2D.init()
+//
+//      surfaceTexture = SurfaceTexture(oesTexture2D.textureId)
       surfaceTexture.setOnFrameAvailableListener(this)
       val surface = Surface(surfaceTexture)
       mediaPlayer.setSurface(surface)
       surface.release()
 
-      textureTransfer.tryToCreateFBO()
+      textureTransferJ.tryToCreateFBO()
+
+//      textureTransfer.tryToCreateFBO()
 
       runOnUiThread {
         if (!playerPrepared) {
@@ -349,8 +365,11 @@ class OpenGLVideoActivity : AppCompatActivity() {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
       Log.i(TAG, "onSurfaceChanged called, width: $width, height: $height")
-      textureTransfer.tryToCreateTempTexture2D(width, height)
-      texture2D.textureId = textureTransfer.tempTexture2DId
+      textureTransferJ.tryToInitTempTexture2D(texture2Dj, width, height)
+//      textureTransferJ.tryToCreateTempTexture2D(width, height)
+//      texture2Dj.setTextureId(textureTransferJ.texture2DId)
+//      textureTransfer.tryToCreateTempTexture2D(width, height)
+//      texture2D.textureId = textureTransfer.tempTexture2DId
       screenWidth = width
       screenHeight = height
       pixelsBuffer = ByteBuffer.allocateDirect(width * height * 4)
@@ -363,11 +382,15 @@ class OpenGLVideoActivity : AppCompatActivity() {
         height / width.toFloat()
       }
       if (width > height) {
-        Matrix.orthoM(texture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
-        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+//        Matrix.orthoM(texture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+//        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
       } else {
-        Matrix.orthoM(texture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
-        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+//        Matrix.orthoM(texture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+//        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
       }
 //      GLES31.glViewport(0, 0, width, height)
     }
@@ -378,25 +401,42 @@ class OpenGLVideoActivity : AppCompatActivity() {
       synchronized(this) {
         if (updateSurface) {
           surfaceTexture.updateTexImage()
-          surfaceTexture.getTransformMatrix(texture2D.stMatrix)
-          surfaceTexture.getTransformMatrix(oesTexture2D.stMatrix)
+//          surfaceTexture.getTransformMatrix(texture2D.stMatrix)
+//          surfaceTexture.getTransformMatrix(oesTexture2D.stMatrix)
+//          surfaceTexture.getTransformMatrix(texture2Dj.stMatrix)
+//          surfaceTexture.getTransformMatrix(texture2DExt.stMatrix)
           updateSurface = false
         }
       }
 
-      textureTransfer.fboStart()
+//      textureTransfer.fboStart()
+      textureTransferJ.fboStart()
+
       Log.i(TAG, "oesTexture2D.draw")
-      oesTexture2D.draw(screenWidth, screenHeight)
+//      oesTexture2D.draw(screenWidth, screenHeight)
+      GLES31.glViewport(0, 0, screenWidth, screenHeight)
+      texture2DExt.draw()
+
       GLES31.glReadPixels(0, 0, screenWidth, screenHeight,
           GLES31.GL_RGBA, GLES31.GL_UNSIGNED_BYTE, pixelsBuffer!!.clear())
       val bitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.ARGB_8888)
       bitmap.copyPixelsFromBuffer(pixelsBuffer)
-      Log.i(TAG, "bitmap center: ${bitmap.getPixel(540, 960)}")
+      val pixel = bitmap.getPixel(screenWidth / 2, screenHeight / 2)
+      val red = Color.red(pixel)
+      val green = Color.green(pixel)
+      val blue = Color.blue(pixel)
+      val alpha = Color.alpha(pixel)
+      Log.i(TAG, "pixel value of current picture at center: " +
+          "R(" + red + ") G(" + green + ") B(" + blue + ") A(" + alpha + ")")
       glCheckError(TAG, "glReadPixels")
-      textureTransfer.fboEnd()
+
+//      textureTransfer.fboEnd()
+      textureTransferJ.fboEnd()
 
       Log.i(TAG, "texture2D.draw")
-      texture2D.draw(screenWidth, screenHeight)
+//      texture2D.draw(screenWidth, screenHeight)
+      GLES31.glViewport(0, 0, screenWidth, screenHeight)
+      texture2Dj.draw()
 
 //      GLES31.glDrawArrays(GLES31.GL_TRIANGLES, 0, 3);
     }
