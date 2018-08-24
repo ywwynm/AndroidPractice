@@ -8,7 +8,6 @@ import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.opengl.GLES31
 import android.opengl.GLSurfaceView
-import android.opengl.Matrix
 import android.os.Bundle
 import android.os.Environment
 import android.support.v4.app.ActivityCompat
@@ -384,13 +383,13 @@ class OpenGLVideoActivity : AppCompatActivity() {
       if (width > height) {
 //        Matrix.orthoM(texture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
 //        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
-        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
-        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+//        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
+//        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -ratio, ratio, -1f, 1f, -1f, 1f)
       } else {
 //        Matrix.orthoM(texture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
 //        Matrix.orthoM(oesTexture2D.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
-        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
-        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+//        Matrix.orthoM(texture2Dj.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
+//        Matrix.orthoM(texture2DExt.projectionMatrix, 0, -1f, 1f, -ratio, ratio, -1f, 1f)
       }
 //      GLES31.glViewport(0, 0, width, height)
     }

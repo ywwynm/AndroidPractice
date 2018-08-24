@@ -27,7 +27,7 @@ public class Texture2D {
   protected int programId;
 
   protected int aPosHandle;
-  protected int uMatHandle;
+//  protected int uMatHandle;
   protected int aTexCoordHandle;
   protected int uTexHandle;
 //  protected int uSTMatrixHandle;
@@ -85,9 +85,9 @@ public class Texture2D {
     glCheckError(TAG, "glGetAttribLocation aPosition");
     Log.i(TAG, "aPosHandle: " + aPosHandle);
 
-    uMatHandle = GLES31.glGetUniformLocation(programId, "uMatrix");
-    glCheckError(TAG, "glGetUniformLocation uMatrix");
-    Log.i(TAG, "uMatHandle: " + uMatHandle);
+//    uMatHandle = GLES31.glGetUniformLocation(programId, "uMatrix");
+//    glCheckError(TAG, "glGetUniformLocation uMatrix");
+//    Log.i(TAG, "uMatHandle: " + uMatHandle);
 
     aTexCoordHandle = GLES31.glGetAttribLocation(programId, "aTexCoord");
     glCheckError(TAG, "glGetAttribLocation aTexCoord");
@@ -155,8 +155,8 @@ public class Texture2D {
 
     GLES31.glUseProgram(programId);
 
-    GLES31.glUniformMatrix4fv(uMatHandle, 1, false, projectionMatrix, 0);
-    glCheckError(TAG, "glUniformMatrix4fv uMatHandle");
+//    GLES31.glUniformMatrix4fv(uMatHandle, 1, false, projectionMatrix, 0);
+//    glCheckError(TAG, "glUniformMatrix4fv uMatHandle");
 
     vertexBuffer.position(0);
     GLES31.glEnableVertexAttribArray(aPosHandle);
