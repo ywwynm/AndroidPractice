@@ -323,8 +323,8 @@ class OpenGLVideoActivity : AppCompatActivity() {
       texture2Dj = Texture2D()
       texture2DExt = Texture2DExt()
 
-      texture2Dj.init()
-      texture2DExt.init()
+      texture2Dj.init(R.raw.video_vertex_shader, R.raw.video_fragment_shader)
+      texture2DExt.init(R.raw.video_vertex_shader, R.raw.video_oes_fragment_shader)
 
       surfaceTexture = SurfaceTexture(texture2DExt.textureID)
 

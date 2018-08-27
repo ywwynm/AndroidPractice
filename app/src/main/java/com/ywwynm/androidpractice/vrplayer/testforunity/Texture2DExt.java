@@ -16,10 +16,6 @@ public class Texture2DExt extends Texture2D {
 
   protected String TAG = "Texture2DExt";
 
-  public Texture2DExt() {
-    super();
-  }
-
   @Override
   public void initTexture() {
     int[] idContainer = new int[1];
@@ -42,19 +38,13 @@ public class Texture2DExt extends Texture2D {
   }
 
   @Override
-  protected void loadShadersSrc() {
-    vertexShaderSrc = ShaderUtils.Companion.readRawTextFile(R.raw.video_vertex_shader);
-    fragShaderSrc = ShaderUtils.Companion.readRawTextFile(R.raw.video_oes_fragment_shader);
-  }
-
-  @Override
-  protected void bindTexture() {
+  public void bindTexture() {
     GLES31.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, textureId);
     glCheckError(TAG, "glBindTexture " + textureId);
   }
 
   @Override
-  protected void unbindTexture() {
+  public void unbindTexture() {
     GLES31.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
     glCheckError(TAG, "glBindTexture 0");
   }

@@ -60,17 +60,17 @@ public class Texture2D {
 
   protected FloatBuffer textureVertexBuffer;
 
-  public void init() {
+  public void init(int vertexShader, int framgentShader) {
     initBuffers();
-    loadShadersSrc();
+    loadShadersSrc(vertexShader, framgentShader);
     createProgram();
     findHandles();
     initTexture();
   }
 
-  protected void loadShadersSrc() {
-    vertexShaderSrc = ShaderUtils.Companion.readRawTextFile(R.raw.video_vertex_shader);
-    fragShaderSrc = ShaderUtils.Companion.readRawTextFile(R.raw.video_fragment_shader);
+  protected void loadShadersSrc(int vertexShader, int framgentShader) {
+    vertexShaderSrc = ShaderUtils.Companion.readRawTextFile(vertexShader);
+    fragShaderSrc = ShaderUtils.Companion.readRawTextFile(framgentShader);
   }
 
   protected void createProgram() {
@@ -137,12 +137,12 @@ public class Texture2D {
     unbindTexture();
   }
 
-  protected void bindTexture() {
+  public void bindTexture() {
     GLES31.glBindTexture(GLES31.GL_TEXTURE_2D, textureId);
     glCheckError(TAG, "glBindTexture " + textureId);
   }
 
-  protected void unbindTexture() {
+  public void unbindTexture() {
     GLES31.glBindTexture(GLES31.GL_TEXTURE_2D, 0);
     glCheckError(TAG, "glBindTexture 0");
   }
