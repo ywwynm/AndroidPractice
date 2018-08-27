@@ -1,11 +1,10 @@
 package com.ywwynm.androidpractice.vrplayer
 
 import android.Manifest
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.GLES31
-import android.opengl.GLSurfaceView
-import android.opengl.GLUtils
-import android.opengl.Matrix
+import android.graphics.Color
+import android.opengl.*
 import android.os.Bundle
 import android.os.Environment
 import android.support.v4.app.ActivityCompat
@@ -14,13 +13,10 @@ import android.util.Log
 import com.ywwynm.androidpractice.R
 import com.ywwynm.androidpractice.vrplayer.testforunity.Texture2D
 import com.ywwynm.androidpractice.vrplayer.testforunity.TextureTransfer
-import com.ywwynm.androidpractice.vrplayer.utils.ShaderUtils
-import com.ywwynm.androidpractice.vrplayer.utils.TextureUtils
+import com.ywwynm.androidpractice.vrplayer.utils.glCheckError
 import kotlinx.android.synthetic.main.activity_triangle_opengl.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.FloatBuffer
-import java.nio.ShortBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
@@ -90,9 +86,33 @@ class OpenGLImageActivity : AppCompatActivity() {
     private lateinit var textureTransfer: TextureTransfer
     private lateinit var texture2: Texture2D // this is for real drawing
 
+    private var textureWidth = 0
+    private var textureHeight = 0
+
+    private var logged = false
+
     override fun onDrawFrame(gl: GL10?) {
       textureTransfer.fboStart()
       texture.draw()
+
+      if (!logged) {
+        val pixelsBuffer = ByteBuffer.allocateDirect(textureWidth * textureHeight * 4)
+            .order(ByteOrder.nativeOrder())
+            .asIntBuffer()
+        GLES30.glReadPixels(0, 0, textureWidth, textureHeight,
+            GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, pixelsBuffer.clear())
+        glCheckError(TAG, "glReadPixels")
+        val bitmap2 = Bitmap.createBitmap(textureWidth, textureHeight, Bitmap.Config.ARGB_8888)
+        bitmap2.copyPixelsFromBuffer(pixelsBuffer)
+        logFrameBufferPixel(bitmap2, 0, 0)
+        logFrameBufferPixel(bitmap2, textureWidth / 2, textureHeight / 2)
+        logFrameBufferPixel(bitmap2, textureWidth / 3, textureHeight / 3)
+        logFrameBufferPixel(bitmap2, textureWidth * 3 / 4, textureHeight * 3 / 4)
+        logFrameBufferPixel(bitmap2, textureWidth - 1, textureHeight - 1)
+        bitmap2.recycle()
+        logged = true
+      }
+
       textureTransfer.fboEnd()
 
       texture2.draw()
@@ -115,8 +135,19 @@ class OpenGLImageActivity : AppCompatActivity() {
 //      GLES31.glDrawElements(GLES31.GL_TRIANGLES, vertexIndexData.size, GLES31.GL_UNSIGNED_SHORT, vertexIndexBuffer)
     }
 
-    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+    private fun logFrameBufferPixel(bitmap: Bitmap, x: Int, y: Int) {
+      val pixel = bitmap.getPixel(x, y)
+      val red = Color.red(pixel)
+      val green = Color.green(pixel)
+      val blue = Color.blue(pixel)
+      val alpha = Color.alpha(pixel)
+      Log.i(TAG, "pixel value at (" + x + ", " + y + "): " +
+          "R(" + red + ") G(" + green + ") B(" + blue + ") A(" + alpha + ")")
+    }
 
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+      textureWidth = width
+      textureHeight = height
       textureTransfer.tryToInitTempTexture2D(texture2, width, height)
 //      val ratio = if (width > height) {
 //        width / height.toFloat()
