@@ -25,7 +25,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/opengl/TextureTransfer.h
 
              src/main/cpp/utils/log.h
-             src/main/cpp/utils/glutils.h
+             src/main/cpp/utils/glutils.h src/main/cpp/utils/glutils.cpp
              )
 
 # Searches for a specified prebuilt library and stores the path as a
