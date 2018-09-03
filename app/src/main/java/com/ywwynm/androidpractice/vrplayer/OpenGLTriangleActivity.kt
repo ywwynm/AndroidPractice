@@ -46,6 +46,7 @@ class OpenGLTriangleActivity : AppCompatActivity() {
 
   inner class MyGLRenderer: GLSurfaceView.Renderer {
     override fun onDrawFrame(gl: GL10?) {
+      GLES31.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
       GLES31.glClear(GLES31.GL_DEPTH_BUFFER_BIT or GLES31.GL_COLOR_BUFFER_BIT)
       GLES31.glUseProgram(programId)
       GLES31.glEnableVertexAttribArray(aPosHandle)
