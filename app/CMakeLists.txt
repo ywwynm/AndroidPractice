@@ -17,7 +17,16 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/native-lib.cpp )
+             src/main/cpp/native-lib.cpp
+
+             src/main/cpp/opengl/Triangle.h src/main/cpp/opengl/Triangle.cpp
+             src/main/cpp/opengl/Texture2D.h src/main/cpp/opengl/Texture2D.cpp
+             src/main/cpp/opengl/Texture2DExt.h src/main/cpp/opengl/Texture2DExt.cpp
+             src/main/cpp/opengl/TextureTransfer.h
+
+             src/main/cpp/utils/log.h
+             src/main/cpp/utils/glutils.h
+             )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

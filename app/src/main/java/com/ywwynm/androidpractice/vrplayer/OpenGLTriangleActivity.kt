@@ -16,9 +16,13 @@ import javax.microedition.khronos.opengles.GL10
 
 class OpenGLTriangleActivity : AppCompatActivity() {
 
+  init {
+    System.loadLibrary("native-lib")
+  }
+
   val TAG = "OpenGLTriangleActivity"
 
-  private lateinit var mRenderer: MyGLRenderer
+  private lateinit var mRenderer: GLSurfaceView.Renderer
 
   private val vertexShaderSrc = ShaderUtils.readRawTextFile(R.raw.triangle_vertex_shader)
   private val fragShaderSrc = ShaderUtils.readRawTextFile(R.raw.triangle_fragment_shader)
@@ -39,7 +43,8 @@ class OpenGLTriangleActivity : AppCompatActivity() {
 
     gsv.setEGLContextClientVersion(3)
 
-    mRenderer = MyGLRenderer()
+//    mRenderer = MyGLRenderer()
+    mRenderer = NativeRenderer()
     gsv.setRenderer(mRenderer)
     gsv.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
   }
@@ -76,4 +81,24 @@ class OpenGLTriangleActivity : AppCompatActivity() {
     }
 
   }
+
+  inner class NativeRenderer: GLSurfaceView.Renderer {
+
+    override fun onDrawFrame(gl: GL10?) {
+      nativeDrawTriangle()
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+      nativeUpdateViewport(width, height)
+    }
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+      initNativeContext()
+    }
+
+  }
+
+  external fun initNativeContext()
+  external fun nativeDrawTriangle()
+  external fun nativeUpdateViewport(width: Int, height: Int)
 }

@@ -17,13 +17,19 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name=".vrplayer.OpenGLTriangleActivity"/>
-    <activity android:name=".vrplayer.OpenGLImageActivity">
+    <activity android:name=".vrplayer.OpenGLTriangleActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+    </activity>
+    <activity android:name=".vrplayer.OpenGLImageActivity">
+      <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN" />-->
+
+        <!--<category android:name="android.intent.category.LAUNCHER" />-->
+      <!--</intent-filter>-->
     </activity>
     <activity android:name=".vrplayer.OpenGLVideoActivity">
 
