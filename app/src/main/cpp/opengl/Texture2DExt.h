@@ -11,13 +11,28 @@
 
 class Texture2DExt: public Texture2D {
 
-protected:
-  const char* provide_tag();
-  const char* provide_vertex_shader_src();
-  const char* provide_fragment_shader_src();
-
 public:
-  Texture2DExt();
+  Texture2DExt() {
+    tag = "Texture2DExt";
+    vertex_shader_src = {
+        "attribute vec4 aPosition;\n"
+        "attribute vec4 aTexCoord;\n"
+        "varying vec2 vTexCoord;\n"
+        "void main() {\n"
+        "  gl_Position = aPosition;\n"
+        "  vTexCoord = aTexCoord.xy;\n"
+        "}\n"
+    };
+    fragment_shader_src = {
+        "#extension GL_OES_EGL_image_external: require\n"
+        "precision mediump float;\n"
+        "varying vec2 vTexCoord;\n"
+        "uniform samplerExternalOES uTexture;\n"
+        "void main() {\n"
+        "  gl_FragColor = texture2D(uTexture, vTexCoord);\n"
+        "}\n"
+    };
+  }
 
   void init_texture();
 

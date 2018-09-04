@@ -9,8 +9,6 @@
 #include "../utils/log.h"
 #include "../utils/glutils.h"
 
-#undef tag
-
 class TextureTransfer {
 
 private:

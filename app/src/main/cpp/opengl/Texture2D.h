@@ -8,16 +8,12 @@
 #include "../utils/log.h"
 #include "GLES3/gl3.h"
 
-#define tag provide_tag()
-#define vertex_shader_src provide_vertex_shader_src()
-#define fragment_shader_src provide_fragment_shader_src()
-
 class Texture2D {
 
 protected:
-  virtual const char* provide_tag();
-  virtual const char* provide_vertex_shader_src();
-  virtual const char* provide_fragment_shader_src();
+  const char* tag;
+  const char* vertex_shader_src;
+  const char* fragment_shader_src;
 
   GLuint texture_id;
   GLuint program_id;
@@ -43,7 +39,26 @@ protected:
   GLuint texture_buffer;
 
 public:
-  Texture2D();
+  Texture2D() {
+    tag = "Texture2D";
+    vertex_shader_src = {
+        "attribute vec4 aPosition;\n"
+        "attribute vec4 aTexCoord;\n"
+        "varying vec2 vTexCoord;\n"
+        "void main() {\n"
+        "  gl_Position = aPosition;\n"
+        "  vTexCoord = aTexCoord.xy;\n"
+        "}\n"
+    };
+    fragment_shader_src = {
+        "precision mediump float;\n"
+        "varying vec2 vTexCoord;\n"
+        "uniform sampler2D uTexture;\n"
+        "void main() {\n"
+        "  gl_FragColor = texture2D(uTexture, vTexCoord);\n"
+        "}\n"
+    };
+  }
 
   void init();
   void create_program();

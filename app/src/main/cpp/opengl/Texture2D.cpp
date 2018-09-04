@@ -6,38 +6,6 @@
 #include "../utils/log.h"
 #include "../utils/glutils.h"
 
-
-const char *Texture2D::provide_tag() {
-  return "Texture2D";
-}
-
-const char *Texture2D::provide_vertex_shader_src() {
-  return {
-      "attribute vec4 aPosition;\n"
-      "attribute vec4 aTexCoord;\n"
-      "varying vec2 vTexCoord;\n"
-      "void main() {\n"
-      "  gl_Position = aPosition;\n"
-      "  vTexCoord = aTexCoord.xy;\n"
-      "}\n"
-  };
-}
-
-const char *Texture2D::provide_fragment_shader_src() {
-  return {
-      "precision mediump float;\n"
-      "varying vec2 vTexCoord;\n"
-      "uniform sampler2D uTexture;\n"
-      "void main() {\n"
-      "  gl_FragColor = texture2D(uTexture, vTexCoord);\n"
-      "}\n"
-  };
-}
-
-Texture2D::Texture2D() {
-
-}
-
 void Texture2D::init() {
   create_program();
   find_handles();
