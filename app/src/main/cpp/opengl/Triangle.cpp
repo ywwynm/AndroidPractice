@@ -29,8 +29,11 @@ void Triangle::find_handles() {
 
 void Triangle::init_buffers() {
   glGenBuffers(1, &vertex_buffer);
+  glutils::gl_check_error(tag, "glGenBuffers");
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-  glBufferData(vertex_buffer, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBindBuffer GL_ARRAY_BUFFER");
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBufferData");
   logi(tag, "vertex_buffer generated: %d, vertex_data has been copied to it", vertex_buffer);
 }
 
