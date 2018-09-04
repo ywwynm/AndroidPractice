@@ -16,7 +16,10 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_ywwynm_androidpractice_vrplayer_OpenGLTriangleActivity_nativeDrawTriangle(
     JNIEnv *env, jobject /* this */) {
   logi(tag, "nativeDrawTriangle is called");
+  context.transfer.start_fbo();
   context.triangle.draw();
+  context.transfer.end_fbo();
+  context.texture2D.draw();
 }
 
 extern "C" JNIEXPORT void JNICALL

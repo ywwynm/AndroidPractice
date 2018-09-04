@@ -70,13 +70,19 @@ void Texture2D::find_handles() {
 
 void Texture2D::init_buffers() {
   glGenBuffers(1, &vertex_buffer);
+  glutils::gl_check_error(tag, "glGenBuffers vertex_buffer");
   glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
-  glBufferData(vertex_buffer, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBindBuffer vertex_buffer " + vertex_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBufferData vertex_buffer");
   logi(tag, "vertex_buffer generated: %d, vertex_data has been copied to it", vertex_buffer);
 
   glGenBuffers(1, &texture_buffer);
+  glutils::gl_check_error(tag, "glGenBuffers texture_buffer");
   glBindBuffer(GL_ARRAY_BUFFER, texture_buffer);
-  glBufferData(texture_buffer, sizeof(texture_data), texture_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBindBuffer texture_buffer " + texture_buffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(texture_data), texture_data, GL_STATIC_DRAW);
+  glutils::gl_check_error(tag, "glBufferData texture_buffer");
   logi(tag, "texture_buffer generated: %d, texture_data has been copied to it", texture_buffer);
 }
 
