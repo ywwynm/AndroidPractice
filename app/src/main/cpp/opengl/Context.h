@@ -9,11 +9,13 @@
 #include "Texture2D.h"
 #include "TextureTransfer.h"
 #include "GLES3/gl3.h"
+#include "Texture2DExt.h"
 
 class Context {
 public:
   Triangle triangle;
   Texture2D texture2D;
+  Texture2DExt texture2DExt;
   TextureTransfer transfer;
 
   int width;
@@ -22,6 +24,7 @@ public:
   void init() {
     triangle.init();
     texture2D.init();
+    texture2DExt.init();
     transfer.try_create_fbo();
   }
 

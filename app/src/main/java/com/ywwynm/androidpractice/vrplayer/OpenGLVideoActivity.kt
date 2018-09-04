@@ -31,9 +31,13 @@ import javax.microedition.khronos.opengles.GL10
 
 class OpenGLVideoActivity : AppCompatActivity() {
 
+  init {
+    System.loadLibrary("native-lib")
+  }
+
   val TAG = "OpenGLVideoActivity"
 
-  private lateinit var mRenderer: MyGLRenderer
+  private lateinit var mRenderer: NativeRenderer
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -44,7 +48,8 @@ class OpenGLVideoActivity : AppCompatActivity() {
 
     gsv.setEGLContextClientVersion(3)
 
-    mRenderer = MyGLRenderer(Environment.getExternalStorageDirectory().absolutePath + "/vr_video/VR_1.mp4")
+//    mRenderer = MyGLRenderer(Environment.getExternalStorageDirectory().absolutePath + "/vr_video/VR_1.mp4")
+    mRenderer = NativeRenderer(Environment.getExternalStorageDirectory().absolutePath + "/vr_video/VR_1.mp4")
     gsv.setRenderer(mRenderer)
     gsv.renderMode = GLSurfaceView.RENDERMODE_CONTINUOUSLY
   }
@@ -260,6 +265,98 @@ class OpenGLVideoActivity : AppCompatActivity() {
 //    }
 //
 //  }
+
+  inner class NativeRenderer(videoPath: String): GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, MediaPlayer.OnPreparedListener {
+
+    private lateinit var surfaceTexture: SurfaceTexture
+    var mediaPlayer: MediaPlayer = MediaPlayer()
+    private var playerPrepared = false
+
+    private var updateSurface = false
+
+    private var screenWidth = 0
+    private var screenHeight = 0
+
+    init {
+      Log.i(TAG, "video path: $videoPath")
+      mediaPlayer.setDataSource(videoPath)
+      mediaPlayer.setAudioAttributes(
+          AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+      mediaPlayer.isLooping = true
+      mediaPlayer.setOnPreparedListener(this)
+      Log.i(TAG, "player setOnPreparedListener")
+    }
+
+    private var shouldResumeFromPause = false
+    fun onPause() {
+      if (playerPrepared) {
+        mediaPlayer.pause()
+        shouldResumeFromPause = true
+      }
+    }
+
+    fun onDestroy() {
+      mediaPlayer.release()
+    }
+
+    fun onResume() {
+      if (playerPrepared && shouldResumeFromPause) {
+        mediaPlayer.start()
+        shouldResumeFromPause = false
+      }
+    }
+
+    override fun onFrameAvailable(surfaceTexture: SurfaceTexture?) {
+      updateSurface = true
+    }
+
+    override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+      initNativeContext()
+
+      surfaceTexture = SurfaceTexture(getNativeTextureExtId())
+      surfaceTexture.setOnFrameAvailableListener(this)
+      val surface = Surface(surfaceTexture)
+      mediaPlayer.setSurface(surface)
+      surface.release()
+
+      runOnUiThread {
+        if (!playerPrepared) {
+          try {
+            Log.i(TAG, "Prepared to start playing")
+            mediaPlayer.prepareAsync()
+          } catch (_: IOException) {
+            Log.e(TAG, "player prepare failed")
+          }
+        }
+      }
+    }
+
+    override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+      nativeUpdateViewport(width, height)
+    }
+
+    override fun onDrawFrame(gl: GL10?) {
+      synchronized(this) {
+        if (updateSurface) {
+          surfaceTexture.updateTexImage()
+          updateSurface = false
+        }
+      }
+      nativeDrawVideo()
+    }
+
+    override fun onPrepared(mp: MediaPlayer?) {
+      playerPrepared = true
+      Log.i(TAG, "player prepared, now it is playing!")
+      mp?.start()
+    }
+
+  }
+
+  external fun initNativeContext()
+  external fun getNativeTextureExtId(): Int
+  external fun nativeDrawVideo()
+  external fun nativeUpdateViewport(width: Int, height: Int)
 
   inner class MyGLRenderer(videoPath: String): GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, MediaPlayer.OnPreparedListener {
 
