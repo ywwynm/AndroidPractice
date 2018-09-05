@@ -313,6 +313,9 @@ class OpenGLVideoActivity : AppCompatActivity() {
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
       initNativeContext()
 
+      val ptr = getNativeFunctionPointer()
+      Log.i(TAG, "getNativeFunctionPointer, ptr: $ptr")
+
       surfaceTexture = SurfaceTexture(getNativeTextureExtId())
       surfaceTexture.setOnFrameAvailableListener(this)
       val surface = Surface(surfaceTexture)
@@ -357,6 +360,8 @@ class OpenGLVideoActivity : AppCompatActivity() {
   external fun getNativeTextureExtId(): Int
   external fun nativeDrawVideo()
   external fun nativeUpdateViewport(width: Int, height: Int)
+
+  external fun getNativeFunctionPointer(): Long // just a test, not related to this Activity's function
 
   inner class MyGLRenderer(videoPath: String): GLSurfaceView.Renderer, SurfaceTexture.OnFrameAvailableListener, MediaPlayer.OnPreparedListener {
 

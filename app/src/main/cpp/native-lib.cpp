@@ -1,6 +1,6 @@
 #include <jni.h>
 #include "utils/log.h"
-#include "opengl/Context.h"
+#include "Context.h"
 
 const char* tag = "native-lib.cpp";
 Context context;
@@ -62,4 +62,15 @@ Java_com_ywwynm_androidpractice_vrplayer_OpenGLVideoActivity_nativeUpdateViewpor
     JNIEnv *env, jobject /* this */, jint width, jint height) {
   logi(tag, "nativeUpdateViewport is called, width: %d, height: %d", width, height);
   context.update_viewport(width, height);
+}
+
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_ywwynm_androidpractice_vrplayer_OpenGLVideoActivity_getNativeFunctionPointer(
+    JNIEnv *env, jobject /* this */) {
+  logi(tag, "getNativeFunctionPointer is called");
+  void (*ptr)(int) = context.get_render_event_function();
+  ptr(9);
+  ptr(6);
+  logi(tag, "ptr: %ld", (long) ptr);
+  return (long) ptr;
 }

@@ -17,6 +17,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
+             src/main/cpp/Context.h src/main/cpp/Context.cpp
              src/main/cpp/native-lib.cpp
 
              src/main/cpp/opengl/Triangle.h src/main/cpp/opengl/Triangle.cpp
@@ -26,6 +27,9 @@ add_library( # Sets the name of the library.
 
              src/main/cpp/utils/log.h
              src/main/cpp/utils/glutils.h src/main/cpp/utils/glutils.cpp
+
+             src/main/cpp/unity/IUnityInterface.h
+             src/main/cpp/unity/UnityGraphics.h
              )
 
 # Searches for a specified prebuilt library and stores the path as a
