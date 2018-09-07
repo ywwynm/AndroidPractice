@@ -27,6 +27,10 @@ void Texture2D::find_handles() {
   glutils::gl_check_error(tag, "glGetAttribLocation aPosition");
   logi(tag, "aPos_handle: %d", aPos_handle);
 
+  uMVPMat_handle = glGetUniformLocation(program_id, "uMVPMatrix");
+  glutils::gl_check_error(tag, "glGetUniformLocation uMVPMatrix");
+  logi(tag, "uMVPMat_handle: %d", uMVPMat_handle);
+
   aTexCoord_handle = glGetAttribLocation(program_id, "aTexCoord");
   glutils::gl_check_error(tag, "glGetAttribLocation aTexCoord");
   logi(tag, "aTexCoord_handle: %d", aTexCoord_handle);

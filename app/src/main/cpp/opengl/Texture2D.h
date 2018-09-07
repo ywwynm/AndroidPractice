@@ -19,14 +19,15 @@ protected:
   GLuint program_id;
 
   GLint aPos_handle;
+  GLint uMVPMat_handle;
   GLint aTexCoord_handle;
   GLint uTex_handle;
 
   const float vertex_data[12] = {
-      1.0f,  1.0f, 0.0f,
+       1.0f,  1.0f, 0.0f,
       -1.0f,  1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      -1.0f, -1.0f, 0.0f
+      -1.0f, -1.0f, 0.0f,
+       1.0f, -1.0f, 0.0f
   };
   GLuint vertex_buffer;
 
@@ -43,6 +44,7 @@ public:
     tag = "Texture2D";
     vertex_shader_src = {
         "attribute vec4 aPosition;\n"
+        "uniform mat4 uMVPMatrix;\n"
         "attribute vec4 aTexCoord;\n"
         "varying vec2 vTexCoord;\n"
         "void main() {\n"

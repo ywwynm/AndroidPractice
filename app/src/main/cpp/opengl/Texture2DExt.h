@@ -16,6 +16,7 @@ public:
     tag = "Texture2DExt";
     vertex_shader_src = {
         "attribute vec4 aPosition;\n"
+        "uniform mat4 uMVPMatrix;\n"
         "attribute vec4 aTexCoord;\n"
         "varying vec2 vTexCoord;\n"
         "void main() {\n"
