@@ -31,9 +31,9 @@ protected:
   GLint aPos_handle;
 
   const float vertex_data[9] = {
-      0.0f,  0.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      1.0f,  1.0f, 0.0f
+       0.0f, 0.0f, 0.0f,
+      -1.0f, 1.0f, 0.0f,
+       1.0f, 1.0f, 0.0f
   };
   GLuint vertex_buffer;
 
