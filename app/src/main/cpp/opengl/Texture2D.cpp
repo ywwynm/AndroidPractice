@@ -92,15 +92,19 @@ void Texture2D::draw() {
 
   glUseProgram(program_id);
 
-  glEnableVertexAttribArray((GLuint) aPos_handle);
-  glutils::gl_check_error(tag, "glEnableVertexAttribArray aPos_handle");
-  glVertexAttribPointer((GLuint) aPos_handle, 3, GL_FLOAT, GL_FALSE, 12, 0);
-  glutils::gl_check_error(tag, "glVertexAttribPointer aPos_handle");
-
+  glBindBuffer(GL_ARRAY_BUFFER, texture_buffer);
+  glutils::gl_check_error(tag, "glBindBuffer texture_buffer");
   glEnableVertexAttribArray((GLuint) aTexCoord_handle);
   glutils::gl_check_error(tag, "glEnableVertexAttribArray aTexCoord_handle");
   glVertexAttribPointer((GLuint) aTexCoord_handle, 2, GL_FLOAT, GL_FALSE, 8, 0);
   glutils::gl_check_error(tag, "glVertexAttribPointer aTexCoord_handle");
+
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+  glutils::gl_check_error(tag, "glBindBuffer vertex_buffer");
+  glEnableVertexAttribArray((GLuint) aPos_handle);
+  glutils::gl_check_error(tag, "glEnableVertexAttribArray aPos_handle");
+  glVertexAttribPointer((GLuint) aPos_handle, 3, GL_FLOAT, GL_FALSE, 12, 0);
+  glutils::gl_check_error(tag, "glVertexAttribPointer aPos_handle");
 
   bind_texture();
 

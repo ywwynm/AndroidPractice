@@ -46,13 +46,14 @@ void Triangle::draw() {
   glutils::gl_check_error(tag, "glClear");
 
   glUseProgram(program_id);
+  glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
   glEnableVertexAttribArray((GLuint) aPos_handle);
   glutils::gl_check_error(tag, "glEnableVertexAttribArray aPos_handle");
   glVertexAttribPointer((GLuint) aPos_handle, 3, GL_FLOAT, GL_FALSE, 12, 0);
   glutils::gl_check_error(tag, "glVertexAttribPointer aPos_handle");
 
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
   glutils::gl_check_error(tag, "glDrawArrays");
 
 }
